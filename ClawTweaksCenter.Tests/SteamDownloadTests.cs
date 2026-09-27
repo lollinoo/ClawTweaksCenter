@@ -15,7 +15,7 @@ internal static class SteamDownloadTests
         string manifest = Path.Combine(apps, "appmanifest_12345.acf");
         try
         {
-            WriteManifest(manifest, 1282); // Required + Running + Started.
+            WriteManifest(manifest, 1026); // Required + Started; Steam may omit Running mid-download.
             var running = ReadManifest(manifest, apps);
             AssertEx.True(running.Downloading);
 
@@ -31,7 +31,10 @@ internal static class SteamDownloadTests
             WriteManifest(manifest, 1538); // Required + Paused + Started.
             AssertEx.Equal(SteamDownloadStatus.Paused, ReadManifest(manifest, apps).DownloadStatus);
 
-            WriteManifest(manifest, 1282);
+            WriteManifest(manifest, 1026);
+            AssertEx.Equal(SteamDownloadStatus.Downloading, ReadManifest(manifest, apps).DownloadStatus);
+
+            WriteManifest(manifest, 1290); // Required + Queued + Running + Started.
             AssertEx.Equal(SteamDownloadStatus.Downloading, ReadManifest(manifest, apps).DownloadStatus);
 
             WriteManifest(manifest, 4);

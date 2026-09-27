@@ -117,8 +117,8 @@ namespace ClawTweaksCenter.Library
         ///
         /// There is no reliable live percentage. In a measured 3.7 GB install, BytesDownloaded
         /// was not updated between the start and finish, and the downloading folder was preallocated
-        /// to full size. The manifest does report whether an update is currently running, allowing
-        /// this state to change when Steam suspends or resumes it.
+        /// to full size. The manifest's Started and Queued flags can change when Steam suspends or
+        /// resumes a transfer, even when its Running bit is absent during the active download.
         /// </summary>
         public SteamDownloadStatus DownloadStatus { get; set; }
 

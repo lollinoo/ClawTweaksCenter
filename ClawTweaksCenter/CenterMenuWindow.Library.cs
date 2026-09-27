@@ -3389,8 +3389,8 @@ namespace ClawTweaksCenter
 
         // ── The download watcher ───────────────────────────────────────────────────────────────
         //
-        // While Steam installs something, Recent shows it with a moving band and refreshes by itself
-        // (user, 2026-09-15). Three things start it: a scan that finds a download, an install started
+        // While Steam installs something, its Steam tile shows the current state and refreshes by
+        // itself. Three things start the watcher: a scan that finds a download, an install started
         // from the launch screen, and Y - which is a scan. Nothing else does; a library that polls
         // Steam on a timer for no reason is the shape this file has refused twice.
         //

@@ -37,10 +37,11 @@ namespace ClawTweaksCenter.Library
             "2805730", // Proton 9.0
         };
 
-        /// <summary>Steam appmanifest StateFlags bits. The Running bit distinguishes an active
-        /// transfer from a queued or suspended one; Steam can suspend a started download without
-        /// setting its separate Paused bit.</summary>
+        /// <summary>Steam appmanifest StateFlags bits. A live download may omit Running (1026 was
+        /// observed while Steam's content log said Downloading), while suspending that transfer
+        /// added Queued (1034). The separate Paused bit is not always set.</summary>
         private const int StateFlagFullyInstalled = 4;
+        private const int StateFlagUpdateQueued = 8;
         private const int StateFlagUpdateRunning = 256;
         private const int StateFlagUpdatePaused = 512;
         private const int StateFlagUpdateStarted = 1024;
@@ -280,8 +281,11 @@ namespace ClawTweaksCenter.Library
         {
             if ((flags & StateFlagFullyInstalled) != 0) return SteamDownloadStatus.None;
             if ((flags & StateFlagUpdateRunning) != 0) return SteamDownloadStatus.Downloading;
-            if ((flags & (StateFlagUpdatePaused | StateFlagUpdateStarted)) != 0)
-                return SteamDownloadStatus.Paused;
+            if ((flags & StateFlagUpdatePaused) != 0) return SteamDownloadStatus.Paused;
+            if ((flags & StateFlagUpdateStarted) != 0)
+                return (flags & StateFlagUpdateQueued) != 0
+                    ? SteamDownloadStatus.Paused
+                    : SteamDownloadStatus.Downloading;
             return SteamDownloadStatus.Queued;
         }
 
