@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ClawTweaksCenter.Core
 {
@@ -1255,6 +1255,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "Abgebrochen",
             ["Task ended"] = "Task beendet",
             ["Could not end the task"] = "Task konnte nicht beendet werden",
+            ["Paused"] = "Pausiert",
+            ["Queued"] = "Wartend",
+            ["Back to Steam"] = "Zur\u00FCck zu Steam",
+            ["Steam has taken over. The download shows in Steam."] = "Steam hat \u00FCbernommen. Der Download erscheint unter Steam.",
+            ["Open Steam to manage this download."] = "\u00D6ffne Steam, um diesen Download zu verwalten.",
         };
 
         private static readonly Dictionary<string, string> French = new Dictionary<string, string>
@@ -2481,6 +2486,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "Annul\u00E9",
             ["Task ended"] = "T\u00E2che termin\u00E9e",
             ["Could not end the task"] = "Impossible de terminer la t\u00E2che",
+            ["Paused"] = "En pause",
+            ["Queued"] = "En attente",
+            ["Back to Steam"] = "Retour \u00E0 Steam",
+            ["Steam has taken over. The download shows in Steam."] = "Steam a pris le relais. Le t\u00E9l\u00E9chargement appara\u00EEt dans Steam.",
+            ["Open Steam to manage this download."] = "Ouvrez Steam pour g\u00E9rer ce t\u00E9l\u00E9chargement.",
         };
 
         private static readonly Dictionary<string, string> Korean = new Dictionary<string, string>
@@ -3712,6 +3722,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "\uCDE8\uC18C\uB428",
             ["Task ended"] = "\uC791\uC5C5 \uC885\uB8CC\uB428",
             ["Could not end the task"] = "\uC791\uC5C5\uC744 \uC885\uB8CC\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4",
+            ["Paused"] = "\uC77C\uC2DC \uC911\uC9C0",
+            ["Queued"] = "\uB300\uAE30 \uC911",
+            ["Back to Steam"] = "Steam\uC73C\uB85C \uB3CC\uC544\uAC00\uAE30",
+            ["Steam has taken over. The download shows in Steam."] = "Steam\uC774 \uC774\uC5B4\uC11C \uCC98\uB9AC\uD569\uB2C8\uB2E4. \uB2E4\uC6B4\uB85C\uB4DC\uB294 Steam\uC5D0 \uD45C\uC2DC\uB429\uB2C8\uB2E4.",
+            ["Open Steam to manage this download."] = "Steam\uC744 \uC5F4\uC5B4 \uC774 \uB2E4\uC6B4\uB85C\uB4DC\uB97C \uAD00\uB9AC\uD558\uC138\uC694.",
         };
 
         private static readonly Dictionary<string, string> Spanish = new Dictionary<string, string>
@@ -4940,6 +4955,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "Cancelado",
             ["Task ended"] = "Tarea finalizada",
             ["Could not end the task"] = "No se pudo finalizar la tarea",
+            ["Paused"] = "En pausa",
+            ["Queued"] = "En cola",
+            ["Back to Steam"] = "Volver a Steam",
+            ["Steam has taken over. The download shows in Steam."] = "Steam se encarga. La descarga aparece en Steam.",
+            ["Open Steam to manage this download."] = "Abre Steam para gestionar esta descarga.",
         };
 
         private static readonly Dictionary<string, string> Russian = new Dictionary<string, string>
@@ -6172,6 +6192,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "\u041E\u0442\u043C\u0435\u043D\u0435\u043D\u043E",
             ["Task ended"] = "\u0417\u0430\u0434\u0430\u0447\u0430 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0430",
             ["Could not end the task"] = "\u041D\u0435 \u0443\u0434\u0430\u043B\u043E\u0441\u044C \u0437\u0430\u0432\u0435\u0440\u0448\u0438\u0442\u044C \u0437\u0430\u0434\u0430\u0447\u0443",
+            ["Paused"] = "\u041F\u0430\u0443\u0437\u0430",
+            ["Queued"] = "\u0412 \u043E\u0447\u0435\u0440\u0435\u0434\u0438",
+            ["Back to Steam"] = "\u041D\u0430\u0437\u0430\u0434 \u0432 Steam",
+            ["Steam has taken over. The download shows in Steam."] = "Steam \u0432\u0437\u044F\u043B \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435. \u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0432\u0438\u0434\u043D\u0430 \u0432 Steam.",
+            ["Open Steam to manage this download."] = "\u041E\u0442\u043A\u0440\u043E\u0439\u0442\u0435 Steam \u0434\u043B\u044F \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u043E\u0439.",
         };
 
         private static readonly Dictionary<string, string> Greek = new Dictionary<string, string>
@@ -7395,6 +7420,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "\u0391\u03BA\u03C5\u03C1\u03CE\u03B8\u03B7\u03BA\u03B5",
             ["Task ended"] = "\u0397 \u03B5\u03C1\u03B3\u03B1\u03C3\u03AF\u03B1 \u03C4\u03B5\u03C1\u03BC\u03B1\u03C4\u03AF\u03C3\u03C4\u03B7\u03BA\u03B5",
             ["Could not end the task"] = "\u0394\u03B5\u03BD \u03AE\u03C4\u03B1\u03BD \u03B4\u03C5\u03BD\u03B1\u03C4\u03CC\u03C2 \u03BF \u03C4\u03B5\u03C1\u03BC\u03B1\u03C4\u03B9\u03C3\u03BC\u03CC\u03C2 \u03C4\u03B7\u03C2 \u03B5\u03C1\u03B3\u03B1\u03C3\u03AF\u03B1\u03C2",
+            ["Paused"] = "\u03A3\u03B5 \u03C0\u03B1\u03CD\u03C3\u03B7",
+            ["Queued"] = "\u03A3\u03B5 \u03B1\u03BD\u03B1\u03BC\u03BF\u03BD\u03AE",
+            ["Back to Steam"] = "\u03A0\u03AF\u03C3\u03C9 \u03C3\u03C4\u03BF Steam",
+            ["Steam has taken over. The download shows in Steam."] = "\u03A4\u03BF Steam \u03B1\u03BD\u03AD\u03BB\u03B1\u03B2\u03B5. \u0397 \u03BB\u03AE\u03C8\u03B7 \u03C6\u03B1\u03AF\u03BD\u03B5\u03C4\u03B1\u03B9 \u03C3\u03C4\u03BF Steam.",
+            ["Open Steam to manage this download."] = "\u0391\u03BD\u03BF\u03AF\u03BE\u03C4\u03B5 \u03C4\u03BF Steam \u03B3\u03B9\u03B1 \u03BD\u03B1 \u03B4\u03B9\u03B1\u03C7\u03B5\u03B9\u03C1\u03B9\u03C3\u03C4\u03B5\u03AF\u03C4\u03B5 \u03C4\u03B7 \u03BB\u03AE\u03C8\u03B7.",
         };
 
         private static readonly Dictionary<string, string> ChineseSimplified = new Dictionary<string, string>
@@ -8623,6 +8653,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "\u5DF2\u53D6\u6D88",
             ["Task ended"] = "\u4EFB\u52A1\u5DF2\u7ED3\u675F",
             ["Could not end the task"] = "\u65E0\u6CD5\u7ED3\u675F\u4EFB\u52A1",
+            ["Paused"] = "\u5DF2\u6682\u505C",
+            ["Queued"] = "\u5DF2\u6392\u961F",
+            ["Back to Steam"] = "\u8FD4\u56DE Steam",
+            ["Steam has taken over. The download shows in Steam."] = "Steam \u5DF2\u63A5\u624B\u3002\u4E0B\u8F7D\u4F1A\u663E\u793A\u5728 Steam \u4E2D\u3002",
+            ["Open Steam to manage this download."] = "\u6253\u5F00 Steam \u7BA1\u7406\u6B64\u4E0B\u8F7D\u3002",
         };
 
         private static readonly Dictionary<string, string> ChineseTraditional = new Dictionary<string, string>
@@ -9851,6 +9886,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "\u5DF2\u53D6\u6D88",
             ["Task ended"] = "\u5DE5\u4F5C\u5DF2\u7D50\u675F",
             ["Could not end the task"] = "\u7121\u6CD5\u7D50\u675F\u5DE5\u4F5C",
+            ["Paused"] = "\u5DF2\u66AB\u505C",
+            ["Queued"] = "\u5DF2\u6392\u968A",
+            ["Back to Steam"] = "\u8FD4\u56DE Steam",
+            ["Steam has taken over. The download shows in Steam."] = "Steam \u5DF2\u63A5\u624B\u3002\u4E0B\u8F09\u6703\u986F\u793A\u5728 Steam \u4E2D\u3002",
+            ["Open Steam to manage this download."] = "\u958B\u555F Steam \u7BA1\u7406\u6B64\u4E0B\u8F09\u3002",
         };
 
         private static readonly Dictionary<string, string> Italian = new Dictionary<string, string>
@@ -11077,6 +11117,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "Annullato",
             ["Task ended"] = "Attivit\u00E0 terminata",
             ["Could not end the task"] = "Impossibile terminare l'attivit\u00E0",
+            ["Paused"] = "In pausa",
+            ["Queued"] = "In coda",
+            ["Back to Steam"] = "Torna a Steam",
+            ["Steam has taken over. The download shows in Steam."] = "Steam ha preso il controllo. Il download compare in Steam.",
+            ["Open Steam to manage this download."] = "Apri Steam per gestire questo download.",
         };
 
         private static readonly Dictionary<string, string> Portuguese = new Dictionary<string, string>
@@ -12291,6 +12336,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "Cancelado",
             ["Task ended"] = "Tarefa finalizada",
             ["Could not end the task"] = "N\u00E3o foi poss\u00EDvel finalizar a tarefa",
+            ["Paused"] = "Em pausa",
+            ["Queued"] = "Na fila",
+            ["Back to Steam"] = "Voltar ao Steam",
+            ["Steam has taken over. The download shows in Steam."] = "O Steam assumiu. O download aparece no Steam.",
+            ["Open Steam to manage this download."] = "Abra o Steam para gerenciar este download.",
         };
 
         private static readonly Dictionary<string, string> Japanese = new Dictionary<string, string>
@@ -13521,6 +13571,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "\u30AD\u30E3\u30F3\u30BB\u30EB\u3057\u307E\u3057\u305F",
             ["Task ended"] = "\u30BF\u30B9\u30AF\u3092\u7D42\u4E86\u3057\u307E\u3057\u305F",
             ["Could not end the task"] = "\u30BF\u30B9\u30AF\u3092\u7D42\u4E86\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F",
+            ["Paused"] = "\u4E00\u6642\u505C\u6B62",
+            ["Queued"] = "\u5F85\u6A5F\u4E2D",
+            ["Back to Steam"] = "Steam \u306B\u623B\u308B",
+            ["Steam has taken over. The download shows in Steam."] = "Steam \u304C\u5F15\u304D\u7D99\u304E\u307E\u3057\u305F\u3002\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u306F Steam \u306B\u8868\u793A\u3055\u308C\u307E\u3059\u3002",
+            ["Open Steam to manage this download."] = "Steam \u3092\u958B\u3044\u3066\u30C0\u30A6\u30F3\u30ED\u30FC\u30C9\u3092\u7BA1\u7406\u3057\u307E\u3059\u3002",
         };
 
         private static readonly Dictionary<string, string> Polish = new Dictionary<string, string>
@@ -14742,6 +14797,11 @@ namespace ClawTweaksCenter.Core
             ["Cancelled"] = "Anulowano",
             ["Task ended"] = "Zadanie zako\u0144czone",
             ["Could not end the task"] = "Nie uda\u0142o si\u0119 zako\u0144czy\u0107 zadania",
+            ["Paused"] = "Wstrzymano",
+            ["Queued"] = "W kolejce",
+            ["Back to Steam"] = "Wr\u00F3\u0107 do Steam",
+            ["Steam has taken over. The download shows in Steam."] = "Steam przej\u0105\u0142 pobieranie. Wida\u0107 je w Steam.",
+            ["Open Steam to manage this download."] = "Otw\u00F3rz Steam, aby zarz\u0105dza\u0107 pobieraniem.",
         };
 
     }
