@@ -3394,8 +3394,8 @@ namespace ClawTweaksCenter
         // from the launch screen, and Y - which is a scan. Nothing else does; a library that polls
         // Steam on a timer for no reason is the shape this file has refused twice.
         //
-        // It does NOT rescan the library every tick. A tick re-reads ONE manifest per watched app
-        // (SteamSource.GetDownloadStatus); the full rescan - nine stores, the owned list, the cover
+        // It does NOT rescan the library every tick. A tick reads each watched app's manifest and
+        // Steam's recent content log (SteamSource.GetDownloadStatus); the full rescan - nine stores, the cover
         // warm-up - runs exactly when something CHANGED: a manifest appeared for an expected install,
         // or a transfer changes state. That is also why the tile carries no figure to refresh.
         private DispatcherTimer _downloadWatch;

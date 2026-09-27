@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32;
@@ -37,9 +38,8 @@ namespace ClawTweaksCenter.Library
             "2805730", // Proton 9.0
         };
 
-        /// <summary>Steam appmanifest StateFlags bits. A live download may omit Running (1026 was
-        /// observed while Steam's content log said Downloading), while suspending that transfer
-        /// added Queued (1034). The separate Paused bit is not always set.</summary>
+        /// <summary>Steam appmanifest StateFlags bits. A live download may omit Running and
+        /// suspending it can leave the flags unchanged, so the content log also matters.</summary>
         private const int StateFlagFullyInstalled = 4;
         private const int StateFlagUpdateQueued = 8;
         private const int StateFlagUpdateRunning = 256;
@@ -99,6 +99,7 @@ namespace ClawTweaksCenter.Library
             var games = new List<GameEntry>();
             string steam = SteamPath();
             if (steam == null) return games;
+            var transferStates = ReadContentLogStates(steam);
 
             foreach (string lib in LibraryFolders(steam))
             {
@@ -113,7 +114,7 @@ namespace ClawTweaksCenter.Library
                 foreach (string manifest in manifests)
                 {
                     ct.ThrowIfCancellationRequested();
-                    var entry = ReadManifest(manifest, apps);
+                    var entry = ReadManifest(manifest, apps, transferStates);
                     if (entry != null) games.Add(entry);
                 }
             }
@@ -202,9 +203,8 @@ namespace ClawTweaksCenter.Library
 
         /// <summary>
         /// One manifest, re-read: null when Steam has no manifest for the app in any library; None
-        /// once fully installed; otherwise the current transfer state. This is what the
-        /// download watcher polls - a full ScanAsync every few seconds would re-read nine stores and
-        /// re-fetch the owned list to answer a question one file answers.
+        /// once fully installed; otherwise the current transfer state. The download watcher polls
+        /// the manifest and Steam's recent content log rather than rescanning every store.
         /// </summary>
         public static SteamDownloadStatus? GetDownloadStatus(string appId)
         {
@@ -220,14 +220,15 @@ namespace ClawTweaksCenter.Library
                     if (app == null) return SteamDownloadStatus.Queued;
                     if (!int.TryParse(ValueOf(app, "StateFlags"), NumberStyles.Integer, CultureInfo.InvariantCulture, out int flags))
                         flags = 0;
-                    return DownloadStatusFromFlags(flags);
+                    return ResolveDownloadStatus(flags, appId, manifest, ReadContentLogStates(steam));
                 }
             }
             catch { }
             return null;
         }
 
-        private static GameEntry ReadManifest(string manifestPath, string steamappsDir)
+        internal static GameEntry ReadManifest(string manifestPath, string steamappsDir,
+            IReadOnlyDictionary<string, (SteamDownloadStatus Status, DateTime Time)> transferStates)
         {
             try
             {
@@ -262,7 +263,7 @@ namespace ClawTweaksCenter.Library
                     Id = appId,
                     Store = GameStore.Steam,
                     Installed = ready,
-                    DownloadStatus = DownloadStatusFromFlags(flags),
+                    DownloadStatus = ResolveDownloadStatus(flags, appId, manifestPath, transferStates),
                     DownloadedBytes = Bytes(ValueOf(app, "BytesDownloaded")),
                     DownloadTotalBytes = Bytes(ValueOf(app, "BytesToDownload")),
                     Title = string.IsNullOrWhiteSpace(name) ? installDir : name,
@@ -287,6 +288,76 @@ namespace ClawTweaksCenter.Library
                     ? SteamDownloadStatus.Paused
                     : SteamDownloadStatus.Downloading;
             return SteamDownloadStatus.Queued;
+        }
+
+        private static SteamDownloadStatus ResolveDownloadStatus(int flags, string appId, string manifestPath,
+            IReadOnlyDictionary<string, (SteamDownloadStatus Status, DateTime Time)> transferStates)
+        {
+            if ((flags & StateFlagFullyInstalled) != 0) return SteamDownloadStatus.None;
+            // The manifest can still say Started after Steam suspends the transfer. Use a recent
+            // per-app state transition from Steam's log. Creation time identifies a new manifest;
+            // Steam can rewrite an existing paused manifest without another state transition.
+            if (transferStates != null && transferStates.TryGetValue(appId, out var state)
+                && state.Time >= File.GetCreationTime(manifestPath).AddMinutes(-1))
+                return state.Status;
+            return DownloadStatusFromFlags(flags);
+        }
+
+        internal static IReadOnlyDictionary<string, (SteamDownloadStatus Status, DateTime Time)> ReadContentLogStates(string steamPath)
+        {
+            var states = new Dictionary<string, (SteamDownloadStatus Status, DateTime Time)>(StringComparer.Ordinal);
+            if (string.IsNullOrEmpty(steamPath)) return states;
+            string path = Path.Combine(steamPath, "logs", "content_log.txt");
+            try
+            {
+                // Steam may keep the log open. Read only its tail so a long-running installation
+                // cannot make every five-second watcher tick scan an unbounded file.
+                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read,
+                           FileShare.ReadWrite | FileShare.Delete))
+                {
+                    long start = Math.Max(0, stream.Length - 1024 * 1024);
+                    stream.Seek(start, SeekOrigin.Begin);
+                    using (var reader = new StreamReader(stream, Encoding.UTF8, true))
+                    {
+                        if (start > 0) reader.ReadLine(); // first line may be truncated
+                        string line;
+                        while ((line = reader.ReadLine()) != null)
+                        {
+                            int marker = line.IndexOf("] AppID ", StringComparison.Ordinal);
+                            if (marker < 1 || line[0] != '[') continue;
+                            if (!DateTime.TryParseExact(line.Substring(1, marker - 1), "yyyy-MM-dd HH:mm:ss",
+                                    CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime time)) continue;
+                            int idStart = marker + "] AppID ".Length;
+                            int idEnd = line.IndexOf(' ', idStart);
+                            if (idEnd <= idStart) continue;
+                            string appId = line.Substring(idStart, idEnd - idStart);
+                            if (!long.TryParse(appId, NumberStyles.None, CultureInfo.InvariantCulture, out _)) continue;
+                            string change = line.Substring(idEnd + 1);
+                            SteamDownloadStatus? status = null;
+                            if (change.StartsWith("state changed : ", StringComparison.Ordinal))
+                            {
+                                if (change.Contains("(Suspended)", StringComparison.Ordinal)) status = SteamDownloadStatus.Paused;
+                                else if (change.Contains("Update Running", StringComparison.Ordinal)) status = SteamDownloadStatus.Downloading;
+                                else if (!change.Contains("Fully Installed", StringComparison.Ordinal)
+                                         && change.Contains("Update Required", StringComparison.Ordinal)) status = SteamDownloadStatus.Queued;
+                                else if (change.Contains("Fully Installed", StringComparison.Ordinal)
+                                         || change.Contains("Uninstalled", StringComparison.Ordinal)) states.Remove(appId);
+                            }
+                            else if (change.StartsWith("update canceled : ", StringComparison.Ordinal)
+                                     && change.Contains("(Suspended)", StringComparison.Ordinal))
+                                status = SteamDownloadStatus.Paused;
+                            else if (change.StartsWith("App update changed : ", StringComparison.Ordinal)
+                                     && change.Contains("Downloading", StringComparison.Ordinal)
+                                     && !change.Contains("Stopping", StringComparison.Ordinal))
+                                status = SteamDownloadStatus.Downloading;
+                            if (status.HasValue) states[appId] = (status.Value, time);
+                        }
+                    }
+                }
+            }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+            return states;
         }
 
         private static long Bytes(string raw)

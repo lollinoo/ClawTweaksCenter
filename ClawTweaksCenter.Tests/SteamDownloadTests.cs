@@ -1,11 +1,84 @@
 using ClawTweaksCenter.Library;
 using System.IO;
 using System.Reflection;
+using System.Globalization;
 
 namespace ClawTweaksCenter.Tests;
 
 internal static class SteamDownloadTests
 {
+    [RegressionTest]
+    private static void SteamLogPauseAndResumeOverrideAnUnchangedManifest()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "claw-steam-log-" + Guid.NewGuid().ToString("N"));
+        string apps = Path.Combine(root, "steamapps");
+        string logs = Path.Combine(root, "logs");
+        Directory.CreateDirectory(apps);
+        Directory.CreateDirectory(logs);
+        string manifest = Path.Combine(apps, "appmanifest_12345.acf");
+        string contentLog = Path.Combine(logs, "content_log.txt");
+        string stamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+        try
+        {
+            WriteManifest(manifest, 1026); // Steam can leave these flags unchanged on pause.
+            File.WriteAllText(contentLog,
+                $"[{stamp}] AppID 12345 state changed : Update Required,Update Queued,Update Running,Update Started,\n"
+                + $"[{stamp}] AppID 12345 App update changed : Running Update,Downloading,Staging,\n");
+            AssertEx.Equal(SteamDownloadStatus.Downloading, ReadManifest(manifest, apps).DownloadStatus);
+
+            File.AppendAllText(contentLog,
+                $"[{stamp}] AppID 12345 update canceled : Disabled (Suspended)\n"
+                + $"[{stamp}] AppID 12345 App update changed : Running Update,Downloading,Staging,Stopping,\n"
+                + $"[{stamp}] AppID 12345 App update changed : None\n"
+                + $"[{stamp}] AppID 12345 state changed : Update Required,Update Queued,Update Started, (Suspended)\n"
+                + $"[{stamp}] AppID 99999 state changed : Update Required,Update Queued,Update Running,Update Started,\n");
+            AssertEx.Equal(SteamDownloadStatus.Paused, ReadManifest(manifest, apps).DownloadStatus);
+
+            File.AppendAllText(contentLog,
+                $"[{stamp}] AppID 12345 state changed : Update Required,Update Queued,Update Running,Update Started,\n");
+            AssertEx.Equal(SteamDownloadStatus.Downloading, ReadManifest(manifest, apps).DownloadStatus);
+
+            string oldStamp = DateTime.Now.AddHours(-2).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            File.WriteAllText(contentLog,
+                $"[{oldStamp}] AppID 12345 state changed : Update Required,Update Queued,Update Started, (Suspended)\n");
+            AssertEx.Equal(SteamDownloadStatus.Downloading, ReadManifest(manifest, apps).DownloadStatus);
+
+            WriteManifest(manifest, 4);
+            Directory.CreateDirectory(Path.Combine(apps, "common", "Test game"));
+            AssertEx.Equal(SteamDownloadStatus.None, ReadManifest(manifest, apps).DownloadStatus);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
+    [RegressionTest]
+    private static void PausedStateSurvivesManifestRewriteWithoutAResumeEvent()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "claw-steam-rewrite-" + Guid.NewGuid().ToString("N"));
+        string apps = Path.Combine(root, "steamapps");
+        string logs = Path.Combine(root, "logs");
+        Directory.CreateDirectory(apps);
+        Directory.CreateDirectory(logs);
+        string manifest = Path.Combine(apps, "appmanifest_12345.acf");
+        try
+        {
+            WriteManifest(manifest, 1026);
+            File.SetCreationTime(manifest, DateTime.Now.AddHours(-1));
+            string stamp = DateTime.Now.AddMinutes(-10).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            File.WriteAllText(Path.Combine(logs, "content_log.txt"),
+                $"[{stamp}] AppID 12345 state changed : Update Required,Update Queued,Update Started, (Suspended)\n");
+            File.SetLastWriteTime(manifest, DateTime.Now);
+
+            AssertEx.Equal(SteamDownloadStatus.Paused, ReadManifest(manifest, apps).DownloadStatus);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
+
     [RegressionTest]
     private static void PausedManifestStopsShowingAnActiveDownload()
     {
@@ -77,9 +150,8 @@ internal static class SteamDownloadTests
     }
 
     private static GameEntry ReadManifest(string path, string apps)
-        => (GameEntry)typeof(SteamSource)
-            .GetMethod("ReadManifest", BindingFlags.Static | BindingFlags.NonPublic)!
-            .Invoke(null, new object[] { path, apps })!;
+        => SteamSource.ReadManifest(path, apps,
+            SteamSource.ReadContentLogStates(Directory.GetParent(apps)!.FullName));
 
     private static void WriteManifest(string path, int flags)
         => File.WriteAllText(path, "\"AppState\"\n{\n"
